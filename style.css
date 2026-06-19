@@ -675,27 +675,50 @@ footer {
    FINAL INPUT OVERLAY — 画面中央
    =========================== */
 #input-overlay {
-  position: fixed; inset: 0;
+  position: fixed;
+  inset: 0;
   background: rgba(0,0,0,.75);
   z-index: 200;
   display: flex;
-  align-items: center;       /* 縦中央 */
-  justify-content: center;   /* 横中央 */
-  padding: 16px;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
 }
 #input-overlay.hidden { display: none; }
 
 #final-ad {
-  background: #fff; border: 1px solid #ccc; border-radius: 8px;
+  position: relative; /* fixedを解除してflexの子要素として中央に */
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
   box-shadow: 0 16px 56px rgba(0,0,0,.7);
-  width: 100%; max-width: 460px;
-  animation: adAppear .4s cubic-bezier(.175,.885,.32,1.275) forwards;
-  max-height: calc(100vh - 60px); overflow-y: auto;
+  width: 100%;
+  max-width: 460px;
+  max-height: calc(100vh - 60px);
+  overflow-y: auto;
+  animation: finalAdAppear .4s cubic-bezier(.175,.885,.32,1.275) forwards;
+}
+
+@keyframes finalAdAppear {
+  from { opacity:0; transform: scale(.88) translateY(-10px); }
+  to   { opacity:1; transform: scale(1)   translateY(0); }
 }
 #final-ad .ad-header { background: #2c2c2c; border-radius: 8px 8px 0 0; position: sticky; top: 0; }
-#final-ad .ad-body { padding: 22px 18px 14px; font-size: 17px; color: #222; line-height: 1.85; white-space: pre-line; min-height: 80px; }
+#final-ad .ad-body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 120px;
+  padding: 24px 18px 14px;
+  font-size: 17px;
+  color: #222;
+  line-height: 1.85;
+  white-space: pre-line;
+  text-align: center;
+}
 
 #input-area { padding: 0 18px 18px; display: flex; gap: 8px; }
+
 #answer-input {
   flex: 1; border: 2px solid #ccc; border-radius: 8px;
   padding: 13px 14px; font-size: 16px; font-family: var(--font);
@@ -713,7 +736,19 @@ footer {
 #submit-btn:hover  { background: #003fa0; }
 #submit-btn:active { opacity: .8; }
 
-#answer-feedback { padding: 0 18px 18px; font-size: 15px; line-height: 1.75; white-space: pre-line; color: #333; animation: fadein .4s ease forwards; }
+#answer-feedback {
+  padding: 0 18px 18px;
+  font-size: 17px;
+  line-height: 1.85;
+  white-space: pre-line;
+  color: #333;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 80px;
+  animation: fadein .4s ease forwards;
+}
 #answer-feedback.hidden { display: none; }
 #answer-feedback.wrong  { color: #c0392b; }
 #wrong-center-text { animation: wrongTextIn .5s ease forwards; }

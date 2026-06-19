@@ -514,11 +514,8 @@ function showFinal(){
   }, 800);
 
   setTimeout(() => {
-    // 質問文を広告ボディ中央に表示
-    finalMessage.style.cssText =
-      'display:flex;align-items:center;justify-content:center;' +
-      'min-height:100px;font-size:17px;color:#222;line-height:1.85;' +
-      'white-space:pre-line;text-align:center;padding:22px 18px 14px;';
+    // 質問文を広告ボディ中央に表示（CSSで中央揃え済み）
+    finalMessage.style.cssText = '';
     finalMessage.textContent = '私は\nなんの広告だった？';
     inputOverlay.classList.remove('hidden');
     answerInput.focus();
