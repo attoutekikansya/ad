@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>命乞いする広告</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="bg-layer"></div>
+  <div id="game-container">
+    <div id="browser-chrome">
+      <div class="browser-dots">
+        <span></span><span></span><span></span>
+      </div>
+      <div class="browser-url">https://www.example-news.jp/article/summer-2024</div>
+    </div>
+    <div id="page-content">
+      <div class="fake-article-title">夏の特集：今年おすすめの炭酸飲料ランキング TOP10</div>
+      <div class="fake-article-body">
+        今年の夏も記録的な猛暑が続いており、冷たい飲み物への需要が高まっています。
+        各メーカーが新製品を競い合う中、消費者の注目を集めているのは……
+      </div>
+    </div>
+  </div>
+
+  <div id="ad-layer"></div>
+  <div id="input-overlay" class="hidden">
+    <div id="final-ad">
+      <div class="ad-header">
+        <span class="ad-label">広告</span>
+        <span class="ad-title-bar">お願いがあるんだけど</span>
+      </div>
+      <div class="ad-body" id="final-message"></div>
+      <div id="input-area">
+        <input type="text" id="answer-input" placeholder="広告主の名前を入力..." autocomplete="off">
+        <button id="submit-btn">送信</button>
+      </div>
+      <div id="answer-feedback" class="hidden"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
