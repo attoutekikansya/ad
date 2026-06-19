@@ -188,9 +188,9 @@ function addChoiceButtons(win, choices){
   return row;
 }
 
-// ===== STORM CONSTANTS =====
-const STORM_TITLES = ['おーい！','ねえねえ！','こっちも！','やあ！','見て！','ここだよ！','Dream Soda！','ゼロカロリー！','夏の炭酸！'];
-const STORM_MSGS   = ['広告いっぱいあった方が\n見つけやすいよね！','目に入りやすいし！','ね？いいアイデアでしょ！','こんにちは！','よろしくね！','見て見て！','夏の炭酸！','おいしいよ！','ゼロカロリー！','Dream Soda!','炭酸といえば！','キンキンに冷えてるよ！'];
+// ===== STORM CONSTANTS — Dream Soda トンマナ =====
+const STORM_TITLES = ['Dream Soda！','夏の炭酸祭り！','ゼロカロリー！','公式キャンペーン！','Dream Soda Zero！','今すぐチェック！','炭酸といえば！','おいしいよ！','ここだよ！'];
+const STORM_MSGS   = ['Dream Soda Zero\nゼロカロリーで夏を楽しもう！','🌊 夏の炭酸祭り 2024 🌊','キンキンに冷えてるよ！','広告主：Dream Soda','炭酸といえばDream Soda！','夏にぴったり！','ゼロカロリー！うれしい！','Dream Soda Zero\n公式キャンペーン中！','見て見て！Dream Soda！'];
 
 // 全広告を約1秒で高速削除
 function clearAdsFast(ads, cb){
@@ -297,12 +297,12 @@ function phase4_please(){
   adLayer.appendChild(win);
   placeCenter(win);
 
-  typewrite(textEl, '広告ってすぐ\n消されちゃうんでしょ？', 50, () => {
+  typewrite(textEl, '広告ってすぐ\n消すでしょ？', 50, () => {
     setTimeout(() => {
       // ①のテキストをフェードアウト
       fadeOutText(textEl, () => {
         // ②を続けてタイプ
-        typewrite(textEl, '見てくれないのはさみしいから、\nあなただけでも見てくれない？\n……ちょっとだけでいいから', 50, () => {
+        typewrite(textEl, '消されてしまうのはさみしいから、\nあなただけでも見てくれない？', 50, () => {
           setTimeout(() => {
             addChoiceButtons(win, [
               { label: 'はい',  onClick: () => closeAd(win, () => startMegaStorm(() => phase5_apologyMenu())) },
@@ -486,7 +486,7 @@ function phase6_no(){
 // ============================================================
 function phase7_alone(){
   const { win, closeBtn } = createAdWindow({ title: '最後に一つだけ' });
-  addCenteredBody(win, 'ごめん\n\n最後に一つだけ聞いていい？');
+  addCenteredBody(win, '最後に一つだけ聞いていい？');
   win.classList.add('ad-pulse');
   adLayer.appendChild(win);
   placeCenter(win);
@@ -539,7 +539,62 @@ function checkAnswer(){
   const raw  = answerInput.value;
   const norm = normalize(raw);
   const ok   = CORRECT_ANSWER_VARIANTS.some(v => norm.includes(normalize(v))) || raw.includes(CORRECT_ANSWER_JP);
-  ok ? showCorrect() : showWrong();
+  if(ok){
+    showCorrect();
+  } else {
+    // 不正解: グリッチノイズ → showWrong
+    triggerGlitch(() => showWrong());
+  }
+}
+
+// ===== GLITCH NOISE EFFECT =====
+function triggerGlitch(cb){
+  // オーバーレイ要素を作成
+  const overlay = document.createElement('div');
+  overlay.id = 'glitch-overlay';
+  document.body.appendChild(overlay);
+
+  // 画面全体を揺らす
+  document.body.style.animation = 'none';
+  overlay.style.animation = 'glitchFlash .9s ease forwards, glitchScreen .9s ease forwards';
+
+  // 縦スキャンラインを数本ランダムに走らせる
+  const lines = [];
+  for(let i = 0; i < 4; i++){
+    const bar = document.createElement('div');
+    bar.style.cssText = `
+      position:fixed;
+      left:0; right:0;
+      height:${Math.floor(Math.random()*6)+2}px;
+      top:${Math.floor(Math.random()*100)}%;
+      background:rgba(${i%2===0?'255,0,80':'0,200,255'},.5);
+      z-index:9001;
+      opacity:0;
+      animation: glitchBar${i} .9s ease forwards;
+      pointer-events:none;
+    `;
+    // インライン keyframes を style タグで追加
+    const st = document.createElement('style');
+    const delay = (i * 0.12).toFixed(2);
+    st.textContent = `
+      @keyframes glitchBar${i} {
+        0%   { opacity:0; transform:scaleX(0) translateX(0); }
+        ${Math.floor(10+i*12)}% { opacity:1; transform:scaleX(1) translateX(${(Math.random()*20-10).toFixed(0)}px); }
+        ${Math.floor(40+i*10)}% { opacity:.5; transform:scaleX(.6) translateX(${(Math.random()*30).toFixed(0)}px); }
+        70%  { opacity:0; }
+        100% { opacity:0; }
+      }
+    `;
+    document.head.appendChild(st);
+    document.body.appendChild(bar);
+    lines.push({ bar, st });
+  }
+
+  setTimeout(() => {
+    overlay.remove();
+    lines.forEach(({ bar, st }) => { bar.remove(); st.remove(); });
+    cb && cb();
+  }, 900);
 }
 
 // -------- 正解 --------
@@ -564,8 +619,10 @@ function showCorrect(){
         fa.style.transition = 'opacity 1.4s ease, transform 1.4s ease';
         fa.style.opacity    = '0';
         fa.style.transform  = 'scale(.9) translateY(-14px)';
-        // final-ad が消えた後も 404 はそのまま残す
-        setTimeout(() => { inputOverlay.classList.add('hidden'); }, 1500);
+        setTimeout(() => {
+          inputOverlay.classList.add('hidden');
+          endWithBlackout();
+        }, 1500);
       }, 800);
       return;
     }
@@ -670,16 +727,45 @@ function startHorrorStorm(){
       adLayer.appendChild(win);
       placeCenter(win);
 
-      // 閉じたら 404 だけ残す
+      // 閉じたら全黒→タブ名変更
       closeBtn.addEventListener('click', () => {
         closeAd(win);
-        hideDimmer();
-        [...adLayer.querySelectorAll('.ad-window')].forEach((w, i) => {
-          setTimeout(() => { if(w.parentElement) closeAd(w); }, i * 20);
-        });
+        endWithBlackout();
       });
     }, copy.length * 4 + 500);
   }, 10000);
+}
+
+// ============================================================
+// END: タブ名変更 → 全黒フェード → 固定
+// ============================================================
+function endWithBlackout(){
+  // 残存広告・オーバーレイをすべて消す
+  hideDimmer();
+  [...adLayer.querySelectorAll('.ad-window')].forEach(w => w.remove());
+  inputOverlay.classList.add('hidden');
+
+  // タブ名を変更
+  document.title = 'このページは閉じられました';
+
+  // 全黒オーバーレイをフェードイン
+  const black = document.createElement('div');
+  black.style.cssText =
+    'position:fixed;inset:0;background:#000;z-index:99999;' +
+    'opacity:0;transition:opacity 1.6s ease;pointer-events:all;';
+  document.body.appendChild(black);
+
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    black.style.opacity = '1';
+  }));
+
+  // フェード完了後、favicon も変えて完全に「閉じた」感にする
+  setTimeout(() => {
+    // faviconを空に（タブのアイコンも消す）
+    let link = document.querySelector("link[rel~='icon']");
+    if(!link){ link = document.createElement('link'); link.rel = 'icon'; document.head.appendChild(link); }
+    link.href = 'data:,';
+  }, 1800);
 }
 
 // ============================================================

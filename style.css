@@ -672,17 +672,16 @@ footer {
 .choice-btn:disabled { opacity: .35; cursor: default; }
 
 /* ===========================
-   FINAL INPUT OVERLAY
+   FINAL INPUT OVERLAY — 画面中央
    =========================== */
 #input-overlay {
   position: fixed; inset: 0;
   background: rgba(0,0,0,.75);
   z-index: 200;
   display: flex;
-  align-items: flex-start;
-  justify-content: center;
+  align-items: center;       /* 縦中央 */
+  justify-content: center;   /* 横中央 */
   padding: 16px;
-  padding-top: max(60px, 12vh);
 }
 #input-overlay.hidden { display: none; }
 
@@ -691,7 +690,7 @@ footer {
   box-shadow: 0 16px 56px rgba(0,0,0,.7);
   width: 100%; max-width: 460px;
   animation: adAppear .4s cubic-bezier(.175,.885,.32,1.275) forwards;
-  max-height: calc(100vh - 120px); overflow-y: auto;
+  max-height: calc(100vh - 60px); overflow-y: auto;
 }
 #final-ad .ad-header { background: #2c2c2c; border-radius: 8px 8px 0 0; position: sticky; top: 0; }
 #final-ad .ad-body { padding: 22px 18px 14px; font-size: 17px; color: #222; line-height: 1.85; white-space: pre-line; min-height: 80px; }
@@ -749,6 +748,103 @@ footer {
   from { opacity:0; } to { opacity:1; }
 }
 #not-found-screen.visible { animation: nfFadeIn 1.2s ease forwards; }
+
+/* ===========================
+   GLITCH NOISE (不正解演出)
+   =========================== */
+#glitch-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  pointer-events: none;
+  opacity: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0,0,0,.15) 0px, rgba(0,0,0,.15) 1px,
+    transparent 1px, transparent 3px
+  );
+}
+
+@keyframes glitchFlash {
+  0%   { opacity:0; transform:translateX(0)   skewX(0deg);  filter:none; }
+  8%   { opacity:1; transform:translateX(-4px) skewX(-2deg); filter:hue-rotate(90deg) saturate(3); }
+  16%  { opacity:0; transform:translateX(6px)  skewX(1deg);  filter:none; }
+  24%  { opacity:1; transform:translateX(-2px) skewX(3deg);  filter:hue-rotate(180deg) brightness(2); }
+  32%  { opacity:0; transform:translateX(0)   skewX(0deg);  filter:none; }
+  40%  { opacity:.8;transform:translateX(3px)  skewX(-1deg); filter:hue-rotate(270deg) contrast(2); }
+  50%  { opacity:0; transform:translateX(0);                filter:none; }
+  60%  { opacity:.6;transform:translateX(-5px) skewX(2deg);  filter:invert(1); }
+  70%  { opacity:0; }
+  80%  { opacity:.4;transform:translateX(2px);              filter:hue-rotate(120deg); }
+  100% { opacity:0; transform:translateX(0); filter:none; }
+}
+
+@keyframes glitchScreen {
+  0%   { background-color:transparent; }
+  10%  { background-color:rgba(255,0,80,.18); }
+  20%  { background-color:transparent; }
+  30%  { background-color:rgba(0,200,255,.12); }
+  40%  { background-color:transparent; }
+  55%  { background-color:rgba(255,0,80,.08); }
+  70%  { background-color:transparent; }
+  85%  { background-color:rgba(0,0,0,.6); }
+  100% { background-color:rgba(0,0,0,.6); }
+}
+
+/* ===========================
+   STORM ADS — Dream Soda トンマナ（青系）
+   =========================== */
+.ad-window.storm {
+  width: auto;
+  min-width: 160px;
+  max-width: 210px;
+  border-radius: 5px;
+  border-color: #4a90f8;
+}
+
+.ad-window.storm .ad-header {
+  background: linear-gradient(135deg, #003fa0, #0057b8);
+  padding: 6px 8px;
+}
+
+.ad-window.storm .ad-header .ad-label {
+  background: rgba(255,255,255,.2);
+}
+
+.ad-window.storm .ad-header .ad-title-bar {
+  font-size: 11px;
+  color: #fff;
+}
+
+.ad-window.storm .close-btn {
+  width: 28px; height: 28px; font-size: 13px;
+  background: rgba(255,255,255,.25);
+  color: #fff;
+  border-radius: 4px;
+}
+.ad-window.storm .close-btn:hover { background: #e74c3c; }
+
+.ad-window.storm .ad-body {
+  padding: 8px 10px;
+  background: linear-gradient(180deg, #f0f6ff 0%, #fff 100%);
+}
+
+.ad-window.storm .ad-text-content {
+  font-size: 11px;
+  color: #003fa0;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+/* Horror ads */
+.ad-window.horror .ad-header { background: #1a0000; }
+.ad-window.horror .ad-text-content { color: #8e0000; font-size: 11px; }
+
+/* Final giant */
+.ad-window.ad-final-giant { width: min(90vw, 420px); max-width: 90vw; min-width: unset; z-index: 500; }
+.ad-window.ad-final-giant .ad-header { background: #8e0000; padding: 12px 16px; }
+.ad-final-big { font-size: clamp(22px, 6vw, 30px); font-weight: 900; color: #111; text-align: center; padding: 28px 16px; line-height: 1.45; }
+.ad-final-brand { color: #0057b8; font-style: italic; font-size: clamp(26px, 7vw, 36px); }
 
 /* ===========================
    RESPONSIVE
