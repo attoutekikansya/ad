@@ -13,27 +13,41 @@ const answerFeedback = document.getElementById('answer-feedback');
 const articleBg      = document.getElementById('article-bg');
 const notFoundScreen = document.getElementById('not-found-screen');
 
+// ===== DIMMER =====
+const dimmer = document.getElementById('bg-dimmer');
+function showDimmer(){ dimmer.classList.add('active'); }
+function hideDimmer(){ dimmer.classList.remove('active'); }
+
 // ===== STATE =====
 let stormAds      = [];
 let stormCloseCnt = 0;
 let apologyGuard  = false;
-let horrorLoop    = null;
 
 // ===== UTILITIES =====
 const clamp = (v,lo,hi) => Math.min(Math.max(v,lo),hi);
 const rand  = (a,b)     => a + Math.random()*(b-a);
 
+function navH(){
+  // ナビバーの実際の高さを取得（safe area込み）
+  const nav = document.getElementById('site-nav');
+  return nav ? nav.getBoundingClientRect().height : 52;
+}
+
 function safePos(w,h){
-  const vw=window.innerWidth, vh=window.innerHeight, m=4;
+  const vw=window.innerWidth, vh=window.innerHeight, m=6;
+  const top0 = navH() + m;
   return {
-    top:  clamp(rand(46, vh-h-m), 46+m, vh-h-m),
-    left: clamp(rand(m,  vw-w-m), m,    vw-w-m),
+    top:  clamp(rand(top0, vh-h-m), top0, vh-h-m),
+    left: clamp(rand(m,    vw-w-m), m,    vw-w-m),
   };
 }
+
 function centerPos(w,h){
+  const nh = navH();
+  const vw = window.innerWidth, vh = window.innerHeight;
   return {
-    top:  Math.max(60,(window.innerHeight-h)/2),
-    left: Math.max(10,(window.innerWidth -w)/2),
+    top:  Math.max(nh + 8, nh + (vh - nh - h) / 2),
+    left: Math.max(10, (vw - w) / 2),
   };
 }
 function placeAt(win,pos){
@@ -44,8 +58,16 @@ function placeAt(win,pos){
 }
 function placeCenter(win){
   requestAnimationFrame(()=>{
-    const r=win.getBoundingClientRect();
-    placeAt(win,centerPos(r.width,r.height));
+    const r = win.getBoundingClientRect();
+    // visualViewport があればキーボード表示を考慮
+    const vw = (window.visualViewport ? window.visualViewport.width  : window.innerWidth);
+    const vh = (window.visualViewport ? window.visualViewport.height : window.innerHeight);
+    const nh = navH();
+    const pos = {
+      top:  Math.max(nh + 8, nh + (vh - nh - r.height) / 2),
+      left: Math.max(10, (vw - r.width) / 2),
+    };
+    placeAt(win, pos);
   });
 }
 
@@ -91,6 +113,51 @@ function closeAd(win,cb){
   setTimeout(()=>{ win.remove(); cb&&cb(); },200);
 }
 
+// ===== DODGE ANIMATION (Phase2用: ×押したら避けて戻る) =====
+function attachDodgeBtn(win, closeBtn, onReallyClose){
+  let dodgeCount = 0;
+  const MAX_DODGE = 3; // 3回避けたら消える（次のフェーズへ）
+
+  closeBtn.addEventListener('click', ()=>{
+    if(dodgeCount >= MAX_DODGE){
+      // 十分避けた → 本当に閉じる
+      closeAd(win, onReallyClose);
+      return;
+    }
+    dodgeCount++;
+
+    // 現在位置取得
+    const r = win.getBoundingClientRect();
+    const vw = window.innerWidth, vh = window.innerHeight;
+
+    // ランダムな方向へ少しずらす
+    const dirs = [
+      {dx: rand(60,120),  dy: rand(-30,30)},
+      {dx: rand(-120,-60),dy: rand(-30,30)},
+      {dx: rand(-30,30),  dy: rand(-80,-40)},
+      {dx: rand(-30,30),  dy: rand(40,80)},
+    ];
+    const d = dirs[dodgeCount % dirs.length];
+    const newLeft = clamp(r.left + d.dx, 4, vw - r.width - 4);
+    const newTop  = clamp(r.top  + d.dy, 46, vh - r.height - 4);
+
+    // 素早くずらす
+    win.style.transition = 'top 0.12s cubic-bezier(0.36,0.07,0.19,0.97), left 0.12s cubic-bezier(0.36,0.07,0.19,0.97)';
+    placeAt(win, {top: newTop, left: newLeft});
+
+    // 0.35s後に中央へ戻る
+    setTimeout(()=>{
+      win.style.transition = 'top 0.35s cubic-bezier(0.34,1.56,0.64,1), left 0.35s cubic-bezier(0.34,1.56,0.64,1)';
+      const cr = win.getBoundingClientRect();
+      placeAt(win, centerPos(cr.width, cr.height));
+      // 少し揺れる演出
+      setTimeout(()=>{
+        win.style.transition = '';
+      }, 400);
+    }, 150);
+  });
+}
+
 // ===== TYPEWRITER =====
 function typewrite(el, text, msPerChar=45, cb){
   el.textContent='';
@@ -123,10 +190,24 @@ function addChoiceButtons(win, choices){
   return row;
 }
 
+// ===== STORM HELPERS =====
+const STORM_TITLES = ['おーい！','ねえねえ！','こっちも！','やあ！','見て！','ここだよ！','Dream Soda！','ゼロカロリー！','夏の炭酸！'];
+const STORM_MSGS   = ['広告いっぱいあった方が\n見つけやすいよね！','目に入りやすいし！','ね？いいアイデアでしょ！','こんにちは！','よろしくね！','見て見て！','夏の炭酸！','おいしいよ！','ゼロカロリー！','Dream Soda!','炭酸といえば！','キンキンに冷えてるよ！'];
+
+// 全ストーム広告を素早く削除（約1秒）
+function clearStormFast(ads, cb){
+  const copy = [...ads];
+  copy.forEach((sw, i)=>{
+    setTimeout(()=>{ if(sw.parentElement) closeAd(sw); }, i * 2);
+  });
+  setTimeout(cb, Math.min(copy.length * 2 + 300, 1200));
+}
+
 // ============================================================
 // PHASE 1: INTRO AD
 // ============================================================
 function showIntroAd(){
+  showDimmer();
   const {win,closeBtn}=createAdWindow({title:'【公式】Dream Soda 夏の炭酸祭り'});
 
   const banner=document.createElement('div');
@@ -151,8 +232,7 @@ function showIntroAd(){
 }
 
 // ============================================================
-// PHASE 2: アニメーション表示 (あっ〜消されるのが仕事だし！)
-// AUTO-ADVANCE with typewriter, no close button needed
+// PHASE 2: あっ〜消されるのが仕事だし！ (dodge animation)
 // ============================================================
 function phase2_animated(){
   const lines=[
@@ -167,34 +247,66 @@ function phase2_animated(){
 
   function showLine(){
     if(idx>=lines.length){
-      // → phase3
       setTimeout(phase3_waitClose,300);
       return;
     }
     const l=lines[idx];
-    const {win}=createAdWindow({title:l.title});
-    // No close btn visible (disable + hide)
-    const textEl=addTextBody(win,l.body);
-    textEl.textContent=''; // clear for typewriter
-
-    // Remove close btn from header
-    const cb=win.querySelector('.close-btn');
-    cb.style.visibility='hidden';
-    cb.disabled=true;
+    const {win,closeBtn}=createAdWindow({title:l.title});
+    const textEl=addTextBody(win,'');
 
     adLayer.appendChild(win);
     placeCenter(win);
     if(currentWin) closeAd(currentWin);
     currentWin=win;
 
-    // Typewriter
-    typewrite(textEl, l.body, 55, ()=>{
-      const wait = idx===3 ? 1800 : 1200;
-      idx++;
-      setTimeout(showLine, wait);
+    // Dodge: 閉じるボタンは押せるが、ランダムに避ける
+    // 最後の行(idx===3)で3回避けたら次フェーズへ
+    // 途中の行は2回避けたら次へ（快テンポ維持）
+    const maxDodge = idx < 3 ? 2 : 3;
+    let dodgeCount = 0;
+
+    closeBtn.addEventListener('click', ()=>{
+      if(dodgeCount < maxDodge){
+        dodgeCount++;
+        doDodge(win, ()=>{
+          // 戻った後何もしない（次のクリックを待つ）
+        });
+      } else {
+        // 本当に閉じて次の行へ
+        currentWin = null;
+        idx++;
+        closeAd(win, ()=>setTimeout(showLine, 200));
+      }
     });
+
+    typewrite(textEl, l.body, 55);
   }
   showLine();
+}
+
+function doDodge(win, onBack){
+  const r = win.getBoundingClientRect();
+  const vw = window.innerWidth, vh = window.innerHeight;
+  const nh = navH();
+  const dirs = [
+    {dx: rand(70,120),  dy: rand(-20,20)},
+    {dx: rand(-120,-70),dy: rand(-20,20)},
+    {dx: rand(-20,20),  dy: rand(-80,-40)},
+    {dx: rand(-20,20),  dy: rand(40,80)},
+  ];
+  const d = dirs[Math.floor(rand(0,4))];
+  const newLeft = clamp(r.left + d.dx, 4, vw - r.width - 4);
+  const newTop  = clamp(r.top  + d.dy, nh + 4, vh - r.height - 4);
+
+  win.style.transition = 'top 0.1s cubic-bezier(0.36,0.07,0.19,0.97), left 0.1s cubic-bezier(0.36,0.07,0.19,0.97)';
+  placeAt(win, {top: newTop, left: newLeft});
+
+  setTimeout(()=>{
+    win.style.transition = 'top 0.4s cubic-bezier(0.34,1.56,0.64,1), left 0.4s cubic-bezier(0.34,1.56,0.64,1)';
+    const cr = win.getBoundingClientRect();
+    placeAt(win, centerPos(cr.width, cr.height));
+    setTimeout(()=>{ win.style.transition=''; onBack&&onBack(); }, 450);
+  }, 130);
 }
 
 // ============================================================
@@ -210,7 +322,7 @@ function phase3_waitClose(){
 }
 
 // ============================================================
-// PHASE 4: 見てくれないかな？ → はい/いいえ → 500個爆発
+// PHASE 4: 見てくれない？ → はい/いいえ → 500個爆発
 // ============================================================
 function phase4_please(){
   const {win,closeBtn}=createAdWindow({title:'お願いがあるんだけど'});
@@ -221,119 +333,112 @@ function phase4_please(){
   adLayer.appendChild(win);
   placeCenter(win);
 
-  typewrite(textEl,'見てくれないかな？\n……ちょっとだけでいいから',50,()=>{
+  typewrite(textEl,'見てくれないのはさみしいから、\nあなただけでも見てくれない？\n……ちょっとだけでいいから',50,()=>{
     setTimeout(()=>{
       addChoiceButtons(win,[
-        {label:'はい', onClick:()=>closeAd(win,()=>megaStorm(()=>phase5_apology()))},
-        {label:'いいえ',onClick:()=>closeAd(win,()=>megaStorm(()=>phase5_apology()))},
+        {label:'はい', onClick:()=>closeAd(win,()=>startMegaStorm(()=>phase5_apology()))},
+        {label:'いいえ',onClick:()=>closeAd(win,()=>startMegaStorm(()=>phase5_apology()))},
       ]);
     },600);
   });
 }
 
 // ============================================================
-// MEGA STORM: 500個 (バッチ生成)
-// cb = called after N closed
+// MEGA STORM: 500個
+// ユーザーが1個も消すまで謝罪は始まらない
+// 5個消したら謝罪→1秒で全消し
 // ============================================================
-const STORM_TOTAL  = 500;
-const STORM_TITLES = ['おーい！','ねえねえ！','こっちも！','やあ！','見て！','ここだよ！','Dream Soda！','ゼロカロリー！','夏の炭酸！'];
-const STORM_MSGS   = ['広告いっぱいあった方が\n見つけやすいよね！','目に入りやすいし！','ね？いいアイデアでしょ！','こんにちは！','よろしくね！','見て見て！','夏の炭酸！','おいしいよ！','ゼロカロリー！','Dream Soda!','炭酸といえば！','キンキンに冷えてるよ！'];
-
-function megaStorm(onFiveClosed){
+function startMegaStorm(onApologyDone){
   stormAds=[];
   stormCloseCnt=0;
   apologyGuard=false;
 
-  const BATCH=50, INTERVAL=30;
+  let localAds=[];
 
-  function spawnBatch(start, count){
-    for(let i=start;i<start+count&&i<STORM_TOTAL;i++){
-      (function(n){
-        setTimeout(()=>{
-          const {win,closeBtn}=createAdWindow({
-            title:STORM_TITLES[n%STORM_TITLES.length],
-            isStorm:true
-          });
-          addTextBody(win,STORM_MSGS[n%STORM_MSGS.length],'small');
-          adLayer.appendChild(win);
-          stormAds.push(win);
-          // Stagger position
-          setTimeout(()=>{
-            const r=win.getBoundingClientRect();
-            placeAt(win,safePos(r.width||160,r.height||80));
-          },10);
+  function spawnOne(n){
+    const {win,closeBtn}=createAdWindow({
+      title: STORM_TITLES[n%STORM_TITLES.length],
+      isStorm: true
+    });
+    addTextBody(win, STORM_MSGS[n%STORM_MSGS.length], 'small');
+    adLayer.appendChild(win);
+    localAds.push(win);
+    stormAds.push(win);
 
-          closeBtn.addEventListener('click',()=>{
-            const ix=stormAds.indexOf(win);
-            if(ix!==-1) stormAds.splice(ix,1);
-            closeAd(win);
-            stormCloseCnt++;
-            if(stormCloseCnt>=5&&!apologyGuard){
-              apologyGuard=true;
-              onFiveClosed();
-            }
-          });
-        }, n*8);
-      })(i);
-    }
+    setTimeout(()=>{
+      const r=win.getBoundingClientRect();
+      placeAt(win, safePos(r.width||160, r.height||80));
+    }, 10);
+
+    closeBtn.addEventListener('click',()=>{
+      const ix=localAds.indexOf(win);
+      if(ix!==-1) localAds.splice(ix,1);
+      const ix2=stormAds.indexOf(win);
+      if(ix2!==-1) stormAds.splice(ix2,1);
+      closeAd(win);
+      stormCloseCnt++;
+
+      if(stormCloseCnt>=5 && !apologyGuard){
+        apologyGuard=true;
+        // 謝罪→1秒で全消し
+        doApologyAndClear(localAds, onApologyDone);
+      }
+    });
   }
 
-  // Spawn in batches to avoid freezing
-  for(let b=0;b<STORM_TOTAL;b+=BATCH){
-    setTimeout(()=>spawnBatch(b,BATCH), b*INTERVAL/BATCH);
+  // 500個をバッチで生成（フリーズ防止）
+  const TOTAL=500;
+  for(let i=0;i<TOTAL;i++){
+    setTimeout(()=>spawnOne(i), i*6);
   }
 }
 
-function clearAllStorm(cb){
-  const copy=[...stormAds];
-  stormAds=[];
-  copy.forEach((sw,i)=>{
-    setTimeout(()=>{ if(sw.parentElement) closeAd(sw); }, i*12);
-  });
-  setTimeout(cb, copy.length*12+300);
-}
+function doApologyAndClear(ads, cb){
+  hideDimmer();
+  showDimmer(); // keep dim while apology shows
 
-// ============================================================
-// PHASE 5: 謝罪 → もう一回やっていい？
-// ============================================================
-function phase5_apology(){
   const {win,closeBtn}=createAdWindow({title:'ごめん！！'});
-  closeBtn.style.visibility='hidden';
-  closeBtn.disabled=true;
+  closeBtn.style.visibility='hidden'; closeBtn.disabled=true;
   const textEl=addTextBody(win,'','big');
+  win.style.zIndex='300'; // apology on top
   adLayer.appendChild(win);
   placeCenter(win);
 
   typewrite(textEl,'ごめん！！\nやりすぎた！！\n怒られるやつだこれ！！\n私が消すから！！',40,()=>{
-    // Auto-clear storm then ask
-    clearAllStorm(()=>{
-      setTimeout(()=>{
-        // Change message
-        const bodyDiv=win.querySelector('.ad-body');
-        const newText=document.createElement('div');
-        newText.className='ad-text-content';
-        newText.textContent='';
-        bodyDiv.innerHTML='';
-        bodyDiv.appendChild(newText);
-
-        typewrite(newText,'……広告こんなに出ると\n迷惑だよね\n\nもう一回だけやっていい？',50,()=>{
-          setTimeout(()=>{
-            addChoiceButtons(win,[
-              {label:'はい', onClick:()=>closeAd(win,()=>phase6_yes())},
-              {label:'いいえ',onClick:()=>closeAd(win,()=>phase6_no())},
-            ]);
-          },400);
-        });
-      },500);
-    });
+    setTimeout(()=>{
+      // 1秒で全消し
+      clearStormFast([...ads], ()=>{
+        stormAds=[];
+        closeAd(win, ()=> setTimeout(cb, 300));
+      });
+    }, 400);
   });
 }
 
 // ============================================================
-// PHASE 6a: はい → 最初の広告を再表示 → one-alone
+// PHASE 5: 広告こんなに出ると迷惑だよね→もう一回やっていい？
+// ============================================================
+function phase5_apology(){
+  const {win,closeBtn}=createAdWindow({title:'……'});
+  closeBtn.style.visibility='hidden'; closeBtn.disabled=true;
+  const textEl=addTextBody(win,'');
+  adLayer.appendChild(win);
+  placeCenter(win);
+
+  typewrite(textEl,'広告こんなに出ると\n迷惑だよね\n\nもう一回だけやっていい？',50,()=>{
+    setTimeout(()=>{
+      addChoiceButtons(win,[
+        {label:'はい', onClick:()=>closeAd(win,()=>phase6_yes())},
+        {label:'いいえ',onClick:()=>closeAd(win,()=>phase6_no())},
+      ]);
+    },400);
+  });
+}
+
+// ============================================================
+// PHASE 6a: はい → 最初の広告を再表示 → alone
 // ============================================================
 function phase6_yes(){
-  // Show the intro ad again briefly (same product banner)
   const {win,closeBtn}=createAdWindow({title:'【公式】Dream Soda 夏の炭酸祭り'});
   const banner=document.createElement('div');
   banner.className='ad-product-banner';
@@ -348,7 +453,6 @@ function phase6_yes(){
   adLayer.appendChild(win);
   placeCenter(win);
 
-  // Show it for 2s then auto-advance (or let user close)
   let advanced=false;
   function advance(){
     if(advanced) return;
@@ -360,7 +464,7 @@ function phase6_yes(){
 }
 
 // ============================================================
-// PHASE 6b: いいえ → 500個 → 3秒後全消し → alone
+// PHASE 6b: いいえ → 500個 → ユーザーが消し始めたら謝罪→全消し → alone
 // ============================================================
 function phase6_no(){
   const {win}=createAdWindow({title:'そっか…'});
@@ -372,34 +476,40 @@ function phase6_no(){
 
   typewrite(textEl,'そっか…\nごめんね',55,()=>{
     setTimeout(()=>{
-      // Storm again, then clear after 3s
-      stormAds=[]; stormCloseCnt=0; apologyGuard=true;
-      let spawned=[];
-      for(let i=0;i<500;i++){
-        (function(n){
-          setTimeout(()=>{
-            const {win:sw,closeBtn:scb}=createAdWindow({title:STORM_TITLES[n%STORM_TITLES.length],isStorm:true});
-            addTextBody(sw,STORM_MSGS[n%STORM_MSGS.length],'small');
-            adLayer.appendChild(sw);
-            spawned.push(sw);
-            setTimeout(()=>{
-              const r=sw.getBoundingClientRect();
-              placeAt(sw,safePos(r.width||160,r.height||80));
-            },10);
-          },n*8);
-        })(i);
-      }
-      // Close the "そっか" ad
-      setTimeout(()=>closeAd(win),300);
+      closeAd(win);
 
-      // Clear all after 3s
-      setTimeout(()=>{
-        spawned.forEach((sw,i)=>{
-          setTimeout(()=>{ if(sw.parentElement) closeAd(sw); }, i*10);
+      // Storm再び（同じ挙動）
+      stormAds=[]; stormCloseCnt=0; apologyGuard=false;
+      let localAds2=[];
+
+      function spawnOne2(n){
+        const {win:sw,closeBtn:scb}=createAdWindow({title:STORM_TITLES[n%STORM_TITLES.length],isStorm:true});
+        addTextBody(sw,STORM_MSGS[n%STORM_MSGS.length],'small');
+        adLayer.appendChild(sw);
+        localAds2.push(sw);
+        stormAds.push(sw);
+        setTimeout(()=>{
+          const r=sw.getBoundingClientRect();
+          placeAt(sw,safePos(r.width||160,r.height||80));
+        },10);
+
+        scb.addEventListener('click',()=>{
+          const ix=localAds2.indexOf(sw);
+          if(ix!==-1) localAds2.splice(ix,1);
+          const ix2=stormAds.indexOf(sw);
+          if(ix2!==-1) stormAds.splice(ix2,1);
+          closeAd(sw);
+          stormCloseCnt++;
+          if(stormCloseCnt>=5 && !apologyGuard){
+            apologyGuard=true;
+            doApologyAndClear(localAds2,()=>setTimeout(phase7_alone,300));
+          }
         });
-        stormAds=[];
-        setTimeout(()=>phase7_alone(), spawned.length*10+600);
-      },3000);
+      }
+
+      for(let i=0;i<500;i++){
+        setTimeout(()=>spawnOne2(i),i*6);
+      }
     },800);
   });
 }
@@ -427,6 +537,7 @@ function phase7_alone(){
 // PHASE 8: FINAL INPUT
 // ============================================================
 function showFinal(){
+  hideDimmer();
   // 404 transition
   articleBg.style.transition='opacity 0.8s';
   articleBg.style.opacity='0';
@@ -437,7 +548,7 @@ function showFinal(){
   },800);
 
   setTimeout(()=>{
-    finalMessage.textContent='私の広告主は\n誰だった？';
+    finalMessage.textContent='私は\nなんの広告だった？';
     inputOverlay.classList.remove('hidden');
     answerInput.focus();
   },1200);
@@ -465,7 +576,7 @@ function showCorrect(){
   answerInput.disabled=submitBtn.disabled=true;
   document.getElementById('input-area').style.display='none';
 
-  const lines=['……','そっか','ちゃんと役割は\n果たせたんだ','ありがと','いいネットサーフィンを！'];
+  const lines=['……','そっか','ちゃんと役割は\n果たせたんだ','ありがと','いい時間を！'];
   const delays=[1200,1600,1800,1600,2500];
   let i=0;
 
@@ -478,10 +589,14 @@ function showCorrect(){
     if(i>=lines.length){
       setTimeout(()=>{
         const fa=document.getElementById('final-ad');
-        fa.style.transition='opacity 1.2s ease, transform 1.2s ease';
+        fa.style.transition='opacity 1.4s ease, transform 1.4s ease';
         fa.style.opacity='0';
-        fa.style.transform='scale(0.9) translateY(-12px)';
-        setTimeout(()=>inputOverlay.classList.add('hidden'),1300);
+        fa.style.transform='scale(0.9) translateY(-14px)';
+        setTimeout(()=>{
+          inputOverlay.classList.add('hidden');
+          // すべて消してブラウザを暗転
+          endGame();
+        },1500);
       },800);
       return;
     }
@@ -500,38 +615,53 @@ function showWrong(){
   document.getElementById('input-area').style.display='none';
 
   const lines=[
-    {t:'そうだよね',          color:'#333'},
-    {t:'広告なんて誰も見てないよね',color:'#555'},
-    {t:'私たちなんて\nすぐ消されるだけの存在だもんね',color:'#c0392b'},
-    {t:'消したいんでしょ？',    color:'#c0392b'},
-    {t:'消していいよ。',        color:'#8e0000'},
+    {t:'そうだよね',                      color:'#666'},
+    {t:'広告なんて誰も見てないよね',        color:'#888'},
+    {t:'私たちなんて\nすぐ消されるだけの存在だもんね', color:'#c0392b'},
+    {t:'消したいんでしょ？',               color:'#c0392b'},
+    {t:'消していいよ。',                   color:'#8e0000'},
   ];
 
-  answerFeedback.className='';
-  answerFeedback.classList.remove('hidden');
+  // 不正解セリフをボックス中央に表示するため finalMessage を使う
+  answerFeedback.classList.add('hidden');
   finalMessage.style.transition='opacity 0.5s';
   finalMessage.style.opacity='0';
 
+  // input-area は非表示済み
+
   // Darken overlay
   inputOverlay.style.transition='background 3s';
-  setTimeout(()=>{ inputOverlay.style.background='rgba(0,0,0,0.92)'; },500);
+  setTimeout(()=>{ inputOverlay.style.background='rgba(0,0,0,0.95)'; },500);
+
+  // final-ad を中央揃えモードに
+  const fa=document.getElementById('final-ad');
+  fa.querySelector('.ad-header').style.display='none'; // ヘッダー非表示
+  const adBody=fa.querySelector('.ad-body');
+  adBody.style.cssText='padding:0;display:flex;align-items:center;justify-content:center;min-height:180px;';
+
+  // 専用の中央テキスト要素
+  const centerText=document.createElement('div');
+  centerText.id='wrong-center-text';
+  centerText.style.cssText='font-size:18px;font-weight:700;color:#666;text-align:center;white-space:pre-line;line-height:1.8;transition:color 0.8s;';
+  adBody.innerHTML='';
+  adBody.appendChild(centerText);
+  finalMessage.style.display='none';
 
   let i=0;
-  const delays=[1800,2200,2800,2000,2000];
+  const delays=[1800,2200,2800,2000,2200];
 
   function next(){
     if(i>=lines.length){
-      // Trigger horror storm
       setTimeout(()=>{
         inputOverlay.classList.add('hidden');
         startHorrorStorm();
       },800);
       return;
     }
-    answerFeedback.textContent=lines[i].t;
-    answerFeedback.style.color=lines[i].color;
-    answerFeedback.style.animation='none';
-    requestAnimationFrame(()=>requestAnimationFrame(()=>{ answerFeedback.style.animation=''; }));
+    centerText.textContent=lines[i].t;
+    centerText.style.color=lines[i].color;
+    centerText.style.animation='none';
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{ centerText.style.animation='fadein 0.4s ease forwards'; }));
     setTimeout(next,delays[i]);
     i++;
   }
@@ -540,8 +670,8 @@ function showWrong(){
 
 // -------- ホラーストーム（消しても増える） --------
 function startHorrorStorm(){
+  showDimmer();
   let horrorCount=0;
-  let horrorClosed=0;
   const horrorAds=[];
 
   function spawnHorror(n){
@@ -558,27 +688,22 @@ function startHorrorStorm(){
       const ix=horrorAds.indexOf(win);
       if(ix!==-1) horrorAds.splice(ix,1);
       closeAd(win);
-      horrorClosed++;
-      // Spawn 2 more for every 1 closed
+      // 消すたびに2個増える
       spawnHorror(horrorCount++);
       spawnHorror(horrorCount++);
     });
   }
 
-  // Spawn 500 initially
   for(let i=0;i<500;i++){
     setTimeout(()=>spawnHorror(horrorCount++), i*8);
   }
 
-  // After 10s: clear all and show final message
+  // 10秒後：全消し→巨大広告
   setTimeout(()=>{
-    if(horrorLoop) clearInterval(horrorLoop);
-    horrorAds.forEach((sw,i)=>{
-      setTimeout(()=>{ if(sw.parentElement) closeAd(sw); },i*6);
-    });
+    const copy=[...horrorAds];
+    copy.forEach((sw,i)=>{ setTimeout(()=>{ if(sw.parentElement) closeAd(sw); },i*4); });
 
     setTimeout(()=>{
-      // Giant center ad
       const {win,closeBtn}=createAdWindow({title:'覚えたよね？'});
       const body=document.createElement('div');
       body.className='ad-body';
@@ -588,9 +713,36 @@ function startHorrorStorm(){
       adLayer.appendChild(win);
       placeCenter(win);
 
-      closeBtn.addEventListener('click',()=>closeAd(win));
-    }, horrorAds.length*6+500);
+      closeBtn.addEventListener('click',()=>{
+        closeAd(win,()=>endGame());
+      });
+    }, copy.length*4+500);
   },10000);
+}
+
+// ============================================================
+// END GAME: すべて消して画面を暗転
+// ============================================================
+function endGame(){
+  hideDimmer();
+  // 残存広告をすべて消す
+  const all=[...adLayer.querySelectorAll('.ad-window')];
+  all.forEach((w,i)=>{ setTimeout(()=>{ if(w.parentElement) closeAd(w); },i*30); });
+
+  // 404も消す
+  setTimeout(()=>{
+    notFoundScreen.style.transition='opacity 1s';
+    notFoundScreen.style.opacity='0';
+    articleBg.style.display='none';
+
+    // 最終: 全黒フェードアウト
+    const blackout=document.createElement('div');
+    blackout.style.cssText='position:fixed;inset:0;background:#000;z-index:9999;opacity:0;transition:opacity 1.5s;pointer-events:none;';
+    document.body.appendChild(blackout);
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      blackout.style.opacity='1';
+    }));
+  }, all.length*30+300);
 }
 
 // ============================================================
@@ -599,7 +751,90 @@ function startHorrorStorm(){
 submitBtn.addEventListener('click',checkAnswer);
 answerInput.addEventListener('keydown',e=>{ if(e.key==='Enter') checkAnswer(); });
 
+// Newsletter fake button
+const nlBtn = document.querySelector('.newsletter-btn');
+if(nlBtn) nlBtn.addEventListener('click',()=>{
+  const inp = document.querySelector('.newsletter-input');
+  if(inp){ inp.value=''; inp.placeholder='登録しました！'; }
+});
+
+// Report card btn — shake (fake)
+const rcBtn = document.querySelector('.report-card-btn');
+if(rcBtn) rcBtn.addEventListener('click',()=>{
+  rcBtn.textContent='読み込み中…';
+  setTimeout(()=>{ rcBtn.textContent='レポートを読む　→'; },1200);
+});
+
+// ============================================================
+// PARTICLE WAVE CANVAS
+// ============================================================
+function initParticles(){
+  const canvas = document.getElementById('particle-canvas');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  function resize(){
+    canvas.width  = canvas.offsetWidth  * window.devicePixelRatio;
+    canvas.height = canvas.offsetHeight * window.devicePixelRatio;
+    ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const W = ()=> canvas.offsetWidth;
+  const H = ()=> canvas.offsetHeight;
+
+  // Particle grid
+  const COLS = 28, ROWS = 14;
+  let t = 0;
+
+  function draw(){
+    const w = W(), h = H();
+    ctx.clearRect(0,0,w,h);
+
+    const cellW = w / COLS;
+    const cellH = h / ROWS;
+
+    for(let row=0; row<ROWS; row++){
+      for(let col=0; col<COLS; col++){
+        const bx = col * cellW;
+        const by = row * cellH;
+
+        // wave displacement
+        const wave1 = Math.sin((col * 0.35) + (row * 0.2) + t * 0.6) * 18;
+        const wave2 = Math.sin((col * 0.2)  - (row * 0.3) + t * 0.4) * 10;
+        const wave3 = Math.cos((col * 0.15) + (row * 0.25)+ t * 0.5) * 8;
+
+        const px = bx + cellW * 0.5 + wave1 * 0.4;
+        const py = by + cellH * 0.5 + wave1 + wave2 + wave3;
+
+        // depth / brightness based on wave
+        const depth = (wave1 + wave2 + 28) / 56; // 0..1
+        const alpha = 0.15 + depth * 0.65;
+        const radius = 0.8 + depth * 1.4;
+
+        // color: dim blue → bright blue-white
+        const r = Math.round(30  + depth * 120);
+        const g = Math.round(80  + depth * 140);
+        const b = Math.round(200 + depth * 55);
+
+        ctx.beginPath();
+        ctx.arc(px, py, radius, 0, Math.PI*2);
+        ctx.fillStyle = `rgba(${r},${g},${b},${alpha})`;
+        ctx.fill();
+      }
+    }
+
+    t += 0.018;
+    requestAnimationFrame(draw);
+  }
+  draw();
+}
+
 // ============================================================
 // INIT
 // ============================================================
-window.addEventListener('load',()=>setTimeout(showIntroAd,600));
+window.addEventListener('load',()=>{
+  initParticles();
+  setTimeout(showIntroAd, 600);
+});

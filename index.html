@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Revival Research Institute — 蘇生研究センター</title>
+  <title>RRI — Revival Research Institute</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -13,133 +13,176 @@
 
     <!-- NAV -->
     <nav id="site-nav">
-      <div class="nav-logo">
-        <span class="nav-logo-mark">◈</span>
-        <span class="nav-logo-text">RRI</span>
-        <span class="nav-logo-sub">Revival Research Institute</span>
+      <div class="nav-left">
+        <div class="nav-logo-icon">◈</div>
+        <div class="nav-logo-text-wrap">
+          <span class="nav-logo-name">REVIVAL RESEARCH</span>
+          <span class="nav-logo-sub">RESEARCH ARCHIVE</span>
+        </div>
       </div>
-      <div class="nav-links">
-        <span>Research</span>
-        <span>Publications</span>
-        <span>About</span>
+      <div class="nav-center">
+        <span>RESEARCH</span>
+        <span>PUBLICATIONS</span>
+        <span>PROJECTS</span>
+        <span>ABOUT US</span>
+        <span>CONTACT</span>
+      </div>
+      <div class="nav-right">
+        <span class="nav-lang">JP ▾</span>
       </div>
     </nav>
 
     <!-- HERO -->
     <section id="hero">
-      <div class="hero-eyebrow">RESEARCH REPORT · 2024</div>
-      <h1 class="hero-title">人を蘇らせる<br>方法<span class="hero-accent">5選</span></h1>
-      <p class="hero-sub">大切な人を失ったあなたへ。安心してください。<br>古今東西、人を蘇らせる方法は数多く存在します。<br>今回はその中から、特に実践しやすく成功率の高い方法を<br>ランキング形式でご紹介します。</p>
-      <div class="hero-meta">
-        <span class="meta-tag">査読済み</span>
-        <span class="meta-tag">エビデンスレベル A+</span>
-        <span class="meta-tag">※効果には個人差があります</span>
+      <div class="hero-left">
+        <div class="hero-eyebrow">RESEARCH ARCHIVE</div>
+        <h1 class="hero-title">人を蘇らせる。<br>だから私たちは、<br>研究する。</h1>
+        <p class="hero-sub">人類の知識と記憶を、次の世代へつなぐために。</p>
+        <a class="hero-cta">OUR MISSION &nbsp;→</a>
+      </div>
+      <div class="hero-right">
+        <canvas id="particle-canvas"></canvas>
       </div>
     </section>
 
-    <!-- DIVIDER -->
-    <div class="section-divider">
-      <span class="divider-line"></span>
-      <span class="divider-label">RANKING · 第5位 → 第1位</span>
-      <span class="divider-line"></span>
+    <!-- STATS BAR -->
+    <div id="stats-bar">
+      <div class="stat-item">
+        <div class="stat-icon">📄</div>
+        <div class="stat-body">
+          <div class="stat-num">12,847</div>
+          <div class="stat-label">保存済み記録</div>
+          <div class="stat-label-en">ARCHIVED RECORDS</div>
+        </div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <div class="stat-icon">👥</div>
+        <div class="stat-body">
+          <div class="stat-num">823</div>
+          <div class="stat-label">回復事例</div>
+          <div class="stat-label-en">RECOVERY CASES</div>
+        </div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <div class="stat-icon">✓</div>
+        <div class="stat-body">
+          <div class="stat-num">98%</div>
+          <div class="stat-label">継承成功率</div>
+          <div class="stat-label-en">SUCCESSION RATE</div>
+        </div>
+      </div>
     </div>
 
-    <!-- RANKINGS -->
-    <section id="rankings">
-
-      <!-- RANK 5 -->
-      <div class="rank-card">
-        <div class="rank-num-col">
-          <div class="phase-label">PHASE</div>
-          <div class="rank-num">05</div>
+    <!-- REPORT SECTION -->
+    <section id="report-section">
+      <div class="report-header">
+        <div>
+          <div class="section-eyebrow">RESEARCH REPORT</div>
+          <h2 class="section-title">研究資料</h2>
+          <p class="section-sub">人類の記憶・意識・存在に関する研究レポートを公開しています。</p>
         </div>
-        <div class="rank-content">
-          <div class="rank-tag">検証済み手法 · 推奨度 ★★★★☆</div>
-          <h2 class="rank-title">本人に確認する</h2>
-          <p class="rank-body">本当に死んでいますか？意外と寝ているだけの場合があります。まずは落ち着いて確認しましょう。</p>
-          <div class="rank-bar-wrap">
-            <div class="rank-bar-label">成功率</div>
-            <div class="rank-bar"><div class="rank-bar-fill" style="width:71%"></div></div>
-            <div class="rank-bar-pct">71%</div>
+        <a class="view-all">VIEW ALL REPORTS &nbsp;→</a>
+      </div>
+
+      <div class="report-body">
+        <!-- LEFT: report card -->
+        <div class="report-card">
+          <div class="report-card-eyebrow">REPORT</div>
+          <div class="report-card-num">05</div>
+          <div class="report-card-date">公開日：2024.06.14</div>
+          <h3 class="report-card-title">人を蘇らせる<br>方法５選</h3>
+          <p class="report-card-desc">失われた人の意識・存在を取り戻す可能性について、古今東西の知見をもとに5つの方法をランキング形式で紹介します。</p>
+          <button class="report-card-btn">レポートを読む &nbsp;→</button>
+        </div>
+
+        <!-- RIGHT: method list -->
+        <div class="method-list">
+          <div class="method-item">
+            <span class="method-num">05</span>
+            <div class="method-body">
+              <div class="method-tag">METHOD</div>
+              <div class="method-title">本人に確認する</div>
+              <div class="method-desc">本当に死んでいますか？意外と寝ているだけの場合があります。</div>
+            </div>
+            <span class="method-action">＋</span>
+          </div>
+          <div class="method-item">
+            <span class="method-num">04</span>
+            <div class="method-body">
+              <div class="method-tag">METHOD</div>
+              <div class="method-title">祈る</div>
+              <div class="method-desc">祈るって大事です。信じる心が大事なのです。</div>
+            </div>
+            <span class="method-action">＋</span>
+          </div>
+          <div class="method-item">
+            <span class="method-num">03</span>
+            <div class="method-body">
+              <div class="method-tag">METHOD</div>
+              <div class="method-title">降霊術を試す</div>
+              <div class="method-desc">霊媒師に相談しましょう。</div>
+            </div>
+            <span class="method-action">＋</span>
+          </div>
+          <div class="method-item">
+            <span class="method-num">02</span>
+            <div class="method-body">
+              <div class="method-tag">METHOD</div>
+              <div class="method-title">異界と交信する</div>
+              <div class="method-desc">死者は異界にいると言われています。</div>
+            </div>
+            <span class="method-action">＋</span>
+          </div>
+          <div class="method-item method-item--locked">
+            <span class="method-num">01</span>
+            <div class="method-body">
+              <div class="method-tag">METHOD</div>
+              <div class="method-title">蘇生に最も重要なのは――</div>
+              <div class="method-desc">このレポートの続きは会員限定で公開しています。</div>
+            </div>
+            <span class="method-action method-lock">🔒</span>
           </div>
         </div>
       </div>
+    </section>
 
-      <!-- RANK 4 -->
-      <div class="rank-card">
-        <div class="rank-num-col">
-          <div class="phase-label">PHASE</div>
-          <div class="rank-num">04</div>
-        </div>
-        <div class="rank-content">
-          <div class="rank-tag">行動科学的アプローチ · 推奨度 ★★★★☆</div>
-          <h2 class="rank-title">祈る</h2>
-          <p class="rank-body">祈るって大事です。信じる心が大事なのです。諦めない気持ちが奇跡を起こします。</p>
-          <div class="rank-bar-wrap">
-            <div class="rank-bar-label">成功率</div>
-            <div class="rank-bar"><div class="rank-bar-fill" style="width:58%"></div></div>
-            <div class="rank-bar-pct">58%</div>
-          </div>
+    <!-- NEWSLETTER -->
+    <div id="newsletter">
+      <div class="newsletter-left">
+        <div class="newsletter-icon">✉</div>
+        <div>
+          <div class="newsletter-eyebrow">RESEARCH UPDATES</div>
+          <div class="newsletter-title">最新の研究レポートを受け取る</div>
+          <div class="newsletter-sub">新しい知見やレポートの公開情報をメールでお届けします。</div>
         </div>
       </div>
-
-      <!-- RANK 3 -->
-      <div class="rank-card">
-        <div class="rank-num-col">
-          <div class="phase-label">PHASE</div>
-          <div class="rank-num">03</div>
-        </div>
-        <div class="rank-content">
-          <div class="rank-tag">専門家監修 · 推奨度 ★★★★★</div>
-          <h2 class="rank-title">降霊術を試す</h2>
-          <p class="rank-body">霊媒師に相談しましょう。最近はオンライン対応している場合もあります。まずは気軽にお問い合わせください。</p>
-          <div class="rank-bar-wrap">
-            <div class="rank-bar-label">成功率</div>
-            <div class="rank-bar"><div class="rank-bar-fill" style="width:83%"></div></div>
-            <div class="rank-bar-pct">83%</div>
-          </div>
-        </div>
+      <div class="newsletter-right">
+        <input class="newsletter-input" type="email" placeholder="メールアドレスを入力">
+        <button class="newsletter-btn">登録する</button>
       </div>
-
-      <!-- RANK 2 -->
-      <div class="rank-card rank-card--accent">
-        <div class="rank-num-col">
-          <div class="phase-label">PHASE</div>
-          <div class="rank-num">02</div>
-        </div>
-        <div class="rank-content">
-          <div class="rank-tag">最先端技術 · 推奨度 ★★★★★</div>
-          <h2 class="rank-title">異界と交信する</h2>
-          <p class="rank-body">死者は異界にいると言われています。交信に成功すれば蘇生の可能性があります。</p>
-          <p class="rank-note">※通信料が発生する場合があります。</p>
-          <div class="rank-bar-wrap">
-            <div class="rank-bar-label">成功率</div>
-            <div class="rank-bar"><div class="rank-bar-fill" style="width:91%"></div></div>
-            <div class="rank-bar-pct">91%</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- RANK 1 (partially visible) -->
-      <div class="rank-card rank-card--gold" id="rank1-card">
-        <div class="rank-num-col">
-          <div class="phase-label">PHASE</div>
-          <div class="rank-num rank-num--gold">01</div>
-        </div>
-        <div class="rank-content">
-          <div class="rank-tag rank-tag--gold">🏆 最重要知見 · 推奨度 ★★★★★</div>
-          <h2 class="rank-title rank-title--gold">蘇生に最も重要なのは――</h2>
-          <p class="rank-body rank-cutoff">「蘇生に最も重要なのは――</p>
-        </div>
-      </div>
-
-    </section><!-- /rankings -->
+    </div>
 
     <!-- FOOTER -->
     <footer id="site-footer">
-      <div class="footer-logo">◈ RRI</div>
-      <div class="footer-copy">© 2024 Revival Research Institute. All rights reserved.</div>
-      <div class="footer-note">本レポートは研究目的で作成されました。</div>
+      <div class="footer-logo-wrap">
+        <span class="footer-logo-icon">◈</span>
+        <div>
+          <div class="footer-logo-name">REVIVAL RESEARCH</div>
+          <div class="footer-logo-sub">RESEARCH ARCHIVE</div>
+        </div>
+      </div>
+      <div class="footer-links">
+        <span>プライバシーポリシー</span>
+        <span>利用規約</span>
+        <span>特定商取引法に基づく表記</span>
+        <span>サイトマップ</span>
+      </div>
+      <div class="footer-right">
+        <span class="footer-copy">© 2024 REVIVAL RESEARCH</span>
+        <span class="footer-fiction">本作品はフィクションです</span>
+      </div>
     </footer>
 
   </div><!-- /article-bg -->
@@ -150,6 +193,9 @@
     <div class="nf-msg">NOT FOUND</div>
     <div class="nf-sub">この記事は削除されました</div>
   </div>
+
+  <!-- ===== BG DIMMER ===== -->
+  <div id="bg-dimmer"></div>
 
   <!-- ===== AD LAYER ===== -->
   <div id="ad-layer"></div>
