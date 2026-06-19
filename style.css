@@ -14,8 +14,20 @@
   --ad-shadow: rgba(0,0,0,0.35);
   --close-btn: #e74c3c;
   --close-hover: #c0392b;
-  --page-bg: #f0f0f0;
   --font-main: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
+
+  /* Article colors */
+  --art-bg: #f5f5f5;
+  --art-card: #ffffff;
+  --art-title: #111111;
+  --art-body: #444444;
+  --art-rank1: #c0392b;
+  --art-rank2: #e67e22;
+  --art-rank3: #27ae60;
+  --art-rank4: #2980b9;
+  --art-rank5: #7f8c8d;
+  --art-border: #e0e0e0;
+  --site-header-bg: #1a1a2e;
 }
 
 html, body {
@@ -23,87 +35,239 @@ html, body {
   width: 100%;
   overflow: hidden;
   font-family: var(--font-main);
-  background: var(--page-bg);
+  background: var(--art-bg);
 }
 
-/* ===== BROWSER CHROME ===== */
-#bg-layer {
-  position: fixed;
-  inset: 0;
-  background: var(--page-bg);
-  z-index: 0;
-}
+/* ===========================
+   ARTICLE BACKGROUND
+   =========================== */
 
-#game-container {
+#article-bg {
   position: fixed;
   inset: 0;
   z-index: 1;
   overflow: hidden;
+  background: var(--art-bg);
+  display: flex;
+  flex-direction: column;
 }
 
-#browser-chrome {
+/* Site header bar */
+#site-header {
+  background: var(--site-header-bg);
+  color: #fff;
+  padding: 0 16px;
+  height: 44px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  background: #e8e8e8;
-  border-bottom: 1px solid #c8c8c8;
-  padding: 8px 14px;
-  height: 42px;
-}
-
-.browser-dots {
-  display: flex;
-  gap: 6px;
+  justify-content: space-between;
   flex-shrink: 0;
+  z-index: 2;
 }
 
-.browser-dots span {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  display: block;
+.site-logo {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: #e2d96b;
 }
 
-.browser-dots span:nth-child(1) { background: #ff5f57; }
-.browser-dots span:nth-child(2) { background: #febc2e; }
-.browser-dots span:nth-child(3) { background: #28c840; }
+.site-nav {
+  font-size: 10px;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 0.04em;
+}
 
-.browser-url {
-  background: #ffffff;
-  border: 1px solid #c8c8c8;
-  border-radius: 6px;
-  padding: 4px 12px;
-  font-size: 12px;
-  color: #555;
+/* Article scroll area — locked by overflow: hidden on html/body */
+#article-wrap {
   flex: 1;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+  overflow: hidden;           /* NO scroll */
+  padding: 14px 14px 0;
+  background: var(--art-bg);
+  position: relative;
 }
 
-/* ===== PAGE CONTENT ===== */
-#page-content {
-  padding: 28px 20px;
-  background: #ffffff;
-  margin: 0;
-  user-select: none;
+/* Category tag */
+.article-category {
+  display: inline-block;
+  background: #8e44ad;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 3px;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
 }
 
-.fake-article-title {
+/* Article title */
+.article-title {
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--art-title);
+  line-height: 1.25;
+  margin-bottom: 10px;
+  letter-spacing: -0.02em;
+}
+
+.title-accent {
+  color: var(--art-rank1);
+  font-size: 28px;
+}
+
+.article-lead {
+  font-size: 13px;
+  color: #555;
+  line-height: 1.65;
+  margin-bottom: 8px;
+  background: #fff9e6;
+  border-left: 3px solid #f39c12;
+  padding: 8px 10px;
+  border-radius: 0 4px 4px 0;
+}
+
+.article-meta {
+  display: flex;
+  gap: 12px;
+  font-size: 11px;
+  color: #999;
+  margin-bottom: 4px;
+}
+
+.article-note {
+  font-size: 10px;
+  color: #aaa;
+  margin-bottom: 10px;
+}
+
+.article-divider {
+  height: 2px;
+  background: linear-gradient(90deg, var(--art-rank1), #e67e22, #f1c40f);
+  border-radius: 2px;
+  margin-bottom: 12px;
+}
+
+/* Rank blocks */
+.rank-block {
+  background: var(--art-card);
+  border: 1px solid var(--art-border);
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+.rank-badge {
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+}
+
+.rank-badge span {
+  font-size: 26px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.rank-1 { background: var(--art-rank1); box-shadow: 0 2px 8px rgba(192,57,43,0.4); }
+.rank-2 { background: var(--art-rank2); }
+.rank-3 { background: var(--art-rank3); }
+.rank-4 { background: var(--art-rank4); }
+.rank-5 { background: var(--art-rank5); }
+
+.rank-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--art-title);
+  margin-bottom: 4px;
+  line-height: 1.3;
+}
+
+.rank-1-title {
+  color: var(--art-rank1);
+  font-size: 16px;
+}
+
+.rank-body {
+  font-size: 12px;
+  color: var(--art-body);
+  line-height: 1.6;
+}
+
+/* Rank 1 block: slightly cut off at bottom to tease */
+.rank-1-block {
+  position: relative;
+  border-color: #e74c3c;
+  border-width: 2px;
+}
+
+.rank-1-body {
+  color: #222;
+  font-size: 13px;
+  font-weight: 600;
+  /* Cut off with gradient */
+  -webkit-mask-image: linear-gradient(to bottom, #000 60%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 60%, transparent 100%);
+}
+
+/* ===========================
+   404 SCREEN
+   =========================== */
+
+#not-found-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  background: #f5f5f5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+#not-found-screen.hidden {
+  display: none;
+}
+
+.nf-code {
+  font-size: 80px;
+  font-weight: 900;
+  color: #ddd;
+  line-height: 1;
+  letter-spacing: -4px;
+}
+
+.nf-msg {
   font-size: 18px;
   font-weight: 700;
-  color: #111;
-  margin-bottom: 12px;
-  line-height: 1.4;
+  color: #bbb;
+  letter-spacing: 0.2em;
 }
 
-.fake-article-body {
-  font-size: 14px;
-  color: #555;
-  line-height: 1.7;
+.nf-sub {
+  font-size: 13px;
+  color: #ccc;
+  margin-top: 4px;
 }
 
-/* ===== AD LAYER ===== */
+/* ===========================
+   AD LAYER
+   =========================== */
+
 #ad-layer {
   position: fixed;
   inset: 0;
@@ -111,7 +275,10 @@ html, body {
   pointer-events: none;
 }
 
-/* ===== AD WINDOW ===== */
+/* ===========================
+   AD WINDOW
+   =========================== */
+
 .ad-window {
   position: absolute;
   background: var(--ad-bg);
@@ -124,6 +291,10 @@ html, body {
   pointer-events: all;
   animation: adAppear 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
   z-index: 101;
+  /* default center — JS overrides */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 @keyframes adAppear {
@@ -198,7 +369,7 @@ html, body {
   padding: 16px;
 }
 
-/* ===== FIRST AD (product ad style) ===== */
+/* ===== FIRST AD: product banner ===== */
 .ad-product-banner {
   background: linear-gradient(135deg, #001f5c 0%, #003fa0 50%, #0057b8 100%);
   padding: 16px;
@@ -217,9 +388,7 @@ html, body {
   font-style: italic;
 }
 
-.ad-product-logo span {
-  color: #7ec8ff;
-}
+.ad-product-logo span { color: #7ec8ff; }
 
 .ad-product-sub {
   font-size: 11px;
@@ -264,7 +433,7 @@ html, body {
   margin-top: 10px;
 }
 
-/* ===== SIMPLE TEXT AD ===== */
+/* ===== Text ads ===== */
 .ad-text-content {
   font-size: 15px;
   color: #222;
@@ -272,21 +441,13 @@ html, body {
   white-space: pre-line;
 }
 
-.ad-text-content.small {
-  font-size: 13px;
-  color: #444;
-}
+.ad-text-content.small { font-size: 13px; color: #444; }
+.ad-text-content.big   { font-size: 17px; font-weight: 600; }
 
-.ad-text-content.big {
-  font-size: 17px;
-  font-weight: 600;
-}
-
-/* ===== SPAWN STORM ADS ===== */
+/* ===== Storm ads ===== */
 .ad-window.storm {
   max-width: 240px;
   min-width: 200px;
-  font-size: 12px;
 }
 
 .ad-window.storm .ad-header {
@@ -294,15 +455,13 @@ html, body {
   padding: 6px 10px;
 }
 
-.ad-window.storm .ad-body {
-  padding: 10px 12px;
-}
+.ad-window.storm .ad-body { padding: 10px 12px; }
+.ad-window.storm .ad-text-content { font-size: 12px; }
 
-.ad-window.storm .ad-text-content {
-  font-size: 12px;
-}
+/* ===========================
+   FINAL AD / INPUT
+   =========================== */
 
-/* ===== FINAL AD ===== */
 #input-overlay {
   position: fixed;
   inset: 0;
@@ -314,9 +473,7 @@ html, body {
   padding: 20px;
 }
 
-#input-overlay.hidden {
-  display: none;
-}
+#input-overlay.hidden { display: none; }
 
 #final-ad {
   background: var(--ad-bg);
@@ -359,9 +516,7 @@ html, body {
   transition: border-color 0.2s;
 }
 
-#answer-input:focus {
-  border-color: var(--ad-header);
-}
+#answer-input:focus { border-color: var(--ad-header); }
 
 #submit-btn {
   background: var(--ad-header);
@@ -378,7 +533,7 @@ html, body {
   touch-action: manipulation;
 }
 
-#submit-btn:hover { background: #003fa0; }
+#submit-btn:hover  { background: #003fa0; }
 #submit-btn:active { transform: scale(0.96); }
 
 #answer-feedback {
@@ -390,27 +545,18 @@ html, body {
   animation: fadein 0.4s ease forwards;
 }
 
-#answer-feedback.hidden {
-  display: none;
-}
-
-#answer-feedback.wrong {
-  color: #c0392b;
-}
+#answer-feedback.hidden { display: none; }
+#answer-feedback.wrong  { color: #c0392b; }
 
 @keyframes fadein {
   from { opacity: 0; transform: translateY(4px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ===== SCATTER POSITIONS (JS will override) ===== */
-.ad-window {
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
+/* ===========================
+   ANIMATIONS
+   =========================== */
 
-/* ===== SHAKE ===== */
 @keyframes shake {
   0%,100% { transform: translateX(0); }
   20% { transform: translateX(-6px); }
@@ -419,16 +565,110 @@ html, body {
   80% { transform: translateX(4px); }
 }
 
-.ad-shake {
-  animation: shake 0.4s ease !important;
-}
+.ad-shake { animation: shake 0.4s ease !important; }
 
-/* ===== PULSE (for lone final ad) ===== */
 @keyframes softPulse {
   0%, 100% { box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
   50% { box-shadow: 0 8px 32px rgba(0,87,184,0.4), 0 0 0 4px rgba(0,87,184,0.1); }
 }
 
-.ad-pulse {
-  animation: softPulse 2.5s ease-in-out infinite !important;
+.ad-pulse { animation: softPulse 2.5s ease-in-out infinite !important; }
+
+/* ===========================
+   404 FADE IN
+   =========================== */
+
+@keyframes nfFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+#not-found-screen.visible {
+  animation: nfFadeIn 1.2s ease forwards;
+}
+
+/* ===========================
+   CHOICE BUTTONS
+   =========================== */
+
+.choice-row {
+  display: flex;
+  gap: 10px;
+  padding: 0 16px 16px;
+  justify-content: center;
+}
+
+.choice-btn {
+  flex: 1;
+  max-width: 130px;
+  padding: 11px 0;
+  border: 2px solid var(--ad-header);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--ad-header);
+  font-size: 15px;
+  font-weight: 700;
+  font-family: var(--font-main);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.choice-btn:hover {
+  background: var(--ad-header);
+  color: #fff;
+}
+
+.choice-btn:active {
+  transform: scale(0.95);
+}
+
+.choice-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* ===========================
+   HORROR ADS
+   =========================== */
+
+.ad-window.horror .ad-header {
+  background: #1a0000;
+}
+
+.ad-window.horror .ad-text-content {
+  color: #8e0000;
+  font-size: 12px;
+}
+
+/* ===========================
+   FINAL GIANT AD (不正解エンド)
+   =========================== */
+
+.ad-window.ad-final-giant {
+  max-width: 90vw;
+  width: 90vw;
+  min-width: unset;
+  z-index: 500;
+}
+
+.ad-window.ad-final-giant .ad-header {
+  background: #8e0000;
+  padding: 12px 16px;
+}
+
+.ad-final-big {
+  font-size: 30px;
+  font-weight: 900;
+  color: #1a1a1a;
+  text-align: center;
+  padding: 28px 16px;
+  line-height: 1.4;
+}
+
+.ad-final-brand {
+  color: #0057b8;
+  font-style: italic;
+  font-size: 36px;
 }

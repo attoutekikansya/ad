@@ -3,28 +3,85 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>命乞いする広告</title>
+  <title>人を蘇らせる方法5選！ | 不思議ねっと</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="bg-layer"></div>
-  <div id="game-container">
-    <div id="browser-chrome">
-      <div class="browser-dots">
-        <span></span><span></span><span></span>
-      </div>
-      <div class="browser-url">https://www.example-news.jp/article/summer-2024</div>
+  <!-- ===== ARTICLE BACKGROUND ===== -->
+  <div id="article-bg">
+
+    <!-- Site Header -->
+    <div id="site-header">
+      <div class="site-logo">🔮 不思議ねっと</div>
+      <div class="site-nav">ホーム｜オカルト｜都市伝説｜体験談</div>
     </div>
-    <div id="page-content">
-      <div class="fake-article-title">夏の特集：今年おすすめの炭酸飲料ランキング TOP10</div>
-      <div class="fake-article-body">
-        今年の夏も記録的な猛暑が続いており、冷たい飲み物への需要が高まっています。
-        各メーカーが新製品を競い合う中、消費者の注目を集めているのは……
+
+    <!-- Article -->
+    <div id="article-wrap">
+
+      <!-- Category tag + title -->
+      <div class="article-category">💀 オカルト・都市伝説</div>
+      <h1 class="article-title">人を蘇らせる方法<span class="title-accent">5選</span>！</h1>
+      <p class="article-lead">大切な人を失ったあなたへ。<br>安心してください。<br>古今東西、人を蘇らせる方法は数多く存在します。<br>今回はその中から、特に実践しやすく成功率の高い方法をランキング形式でご紹介します。</p>
+      <div class="article-meta">
+        <span>2024年6月14日</span>
+        <span>👁 12,847 views</span>
+        <span>❤ 823</span>
       </div>
-    </div>
+      <div class="article-note">※効果には個人差があります。</div>
+
+      <!-- Divider -->
+      <div class="article-divider"></div>
+
+      <!-- Rank 5 -->
+      <div class="rank-block">
+        <div class="rank-badge rank-5">第<span>5</span>位</div>
+        <h2 class="rank-title">本人に確認する</h2>
+        <p class="rank-body">本当に死んでいますか？<br>意外と寝ているだけの場合があります。<br>まずは落ち着いて確認しましょう。</p>
+      </div>
+
+      <!-- Rank 4 -->
+      <div class="rank-block">
+        <div class="rank-badge rank-4">第<span>4</span>位</div>
+        <h2 class="rank-title">祈る</h2>
+        <p class="rank-body">祈るって大事です。<br>信じる心が大事なのです。<br>諦めない気持ちが奇跡を起こします。</p>
+      </div>
+
+      <!-- Rank 3 -->
+      <div class="rank-block">
+        <div class="rank-badge rank-3">第<span>3</span>位</div>
+        <h2 class="rank-title">降霊術を試す</h2>
+        <p class="rank-body">霊媒師に相談しましょう。<br>最近はオンライン対応している場合もあります。<br>まずは気軽にお問い合わせください。</p>
+      </div>
+
+      <!-- Rank 2 -->
+      <div class="rank-block">
+        <div class="rank-badge rank-2">第<span>2</span>位</div>
+        <h2 class="rank-title">異界と交信する</h2>
+        <p class="rank-body">死者は異界にいると言われています。<br>交信に成功すれば蘇生の可能性があります。<br>※通信料が発生する場合があります。</p>
+      </div>
+
+      <!-- Rank 1 (partially visible, cut off by ad) -->
+      <div class="rank-block rank-1-block">
+        <div class="rank-badge rank-1">第<span>1</span>位</div>
+        <h2 class="rank-title rank-1-title">🏆 蘇生に最も重要なのは――</h2>
+        <p class="rank-body rank-1-body">「蘇生に最も重要なのは――</p>
+      </div>
+
+    </div><!-- /article-wrap -->
+  </div><!-- /article-bg -->
+
+  <!-- ===== 404 SCREEN (hidden until game end) ===== -->
+  <div id="not-found-screen" class="hidden">
+    <div class="nf-code">404</div>
+    <div class="nf-msg">NOT FOUND</div>
+    <div class="nf-sub">この記事は削除されました</div>
   </div>
 
+  <!-- ===== AD LAYER ===== -->
   <div id="ad-layer"></div>
+
+  <!-- ===== FINAL INPUT ===== -->
   <div id="input-overlay" class="hidden">
     <div id="final-ad">
       <div class="ad-header">
