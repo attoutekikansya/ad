@@ -527,31 +527,32 @@ footer {
    AD WINDOW
    =========================== */
 .ad-window {
-  position: absolute;
+  position: fixed;
   background: #ffffff;
   border: 1px solid #c8c8c8;
   border-radius: 6px;
   box-shadow: 0 18px 64px rgba(0,0,0,.75), 0 6px 20px rgba(0,0,0,.5);
-  /* 画面幅ぎりぎりまで使い背景を覆う */
   width: calc(100vw - 16px);
   max-width: 460px;
   min-width: 280px;
   pointer-events: all;
   animation: adAppear .25s cubic-bezier(.175,.885,.32,1.275) forwards;
   z-index: 101;
-  top: 50%; left: 50%;
-  transform: translate(-50%,-50%);
+  /* 常に画面の真ん中 */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   -webkit-user-select: none;
   user-select: none;
 }
 
 @keyframes adAppear {
   from { opacity:0; transform:translate(-50%,-50%) scale(.88) translateY(-8px); }
-  to   { opacity:1; transform:translate(-50%,-50%) scale(1) translateY(0); }
+  to   { opacity:1; transform:translate(-50%,-50%) scale(1)   translateY(0);    }
 }
 @keyframes adDisappear {
-  from { opacity:1; transform:scale(1); }
-  to   { opacity:0; transform:scale(.88); }
+  from { opacity:1; transform:translate(-50%,-50%) scale(1); }
+  to   { opacity:0; transform:translate(-50%,-50%) scale(.88); }
 }
 .ad-closing {
   animation: adDisappear .18s ease-in forwards !important;
@@ -776,4 +777,19 @@ footer {
   footer { flex-direction: column; gap: 8px; padding: 10px 4vw; }
   .footer-links { display: none; }
   .footer-right { align-items: flex-start; }
+}
+
+/* ===========================
+   CENTERED AD BODY
+   =========================== */
+.ad-body--center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100px;
+  text-align: center;
+}
+
+.ad-body--center .ad-text-content {
+  text-align: center;
 }
