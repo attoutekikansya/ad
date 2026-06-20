@@ -8,7 +8,7 @@ const articleBg = document.getElementById('article-bg');
 const dimmer    = document.getElementById('bg-dimmer');
 
 function showDimmer(){ dimmer.classList.add('active'); }
-function hideDimmer(){ dimmer.classList.remove('active'); }
+function hideDimmer(){ /* 出しっぱなし — 意図的にオフにしない */ }
 
 // ===== UTILS =====
 const clamp = (v,lo,hi) => Math.min(Math.max(v,lo),hi);
@@ -266,23 +266,45 @@ function runStormEvent(onDone){
 }
 
 function spawnStorm(onDone){
-  const TOTAL = Math.floor(rand(12, 20));
+  const TOTAL = 120; // 画面を埋め尽くす
   let spawned = [];
   let closedCount = 0;
   let apologyShown = false;
 
+  // 契約テキストを自然に紛れ込ませるインデックス（複数）
+  const contractIndices = new Set([
+    Math.floor(rand(8,  20)),
+    Math.floor(rand(25, 45)),
+    Math.floor(rand(55, 80)),
+  ]);
+
+  // 契約テキスト（自然に読めるが意味が重い）
+  const contractTexts = [
+    'Dream Soda Zero\n私の人生を消します',
+    '夏の炭酸祭り\n私の体を消します',
+    'Dream Soda\n私はバツ印を押すと全てに同意します',
+  ];
+  const contractPool = [...contractTexts];
+
   for(let i = 0; i < TOTAL; i++){
     setTimeout(() => {
+      const isContract = contractIndices.has(i) && contractPool.length > 0;
       const n = i % STORM_TITLES.length;
-      const { win, closeBtn } = createAdWindow({ title: STORM_TITLES[n], isStorm: true });
+
+      const title = isContract ? STORM_TITLES[n] : STORM_TITLES[n];
+      const body  = isContract
+        ? contractPool.shift()
+        : STORM_BODIES[n];
+
+      const { win, closeBtn } = createAdWindow({ title, isStorm: true });
       addCenteredBody(win,
-        `<div class="ad-text-content small" style="text-align:center;font-size:12px;white-space:pre-line;">${escHtml(STORM_BODIES[n])}</div>`
+        `<div class="ad-text-content small" style="text-align:center;font-size:11px;white-space:pre-line;line-height:1.6;">${escHtml(body)}</div>`
       );
       adLayer.appendChild(win);
       spawned.push(win);
       setTimeout(() => {
         const r = win.getBoundingClientRect();
-        placeFixed(win, safePos(r.width || 180, r.height || 90));
+        placeFixed(win, safePos(r.width || 170, r.height || 85));
       }, 10);
 
       closeBtn.addEventListener('click', () => {
@@ -295,7 +317,7 @@ function spawnStorm(onDone){
           runApology(spawned, onDone);
         }
       });
-    }, i * 100);
+    }, i * 40); // 短い間隔で一気に埋め尽くす
   }
 }
 
@@ -412,7 +434,7 @@ function triggerIdleRoute(win){
         'font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;letter-spacing:.04em;' +
         '-webkit-tap-highlight-color:transparent;';
       shareBtn.addEventListener('click', () => {
-        const text = encodeURIComponent('人を蘇らせる方法を見つけました。');
+        const text = encodeURIComponent('迷惑広告を私は消しました。');
         const url  = encodeURIComponent(location.href);
         window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
       });
@@ -429,6 +451,7 @@ function triggerIdleRoute(win){
 // ENDING
 // ================================================================
 function runEnding(){
+  // 暗転（出しっぱなし・チカチカしない）
   const black = document.createElement('div');
   black.style.cssText =
     'position:fixed;inset:0;z-index:9000;background:#000;opacity:0;' +
@@ -436,9 +459,10 @@ function runEnding(){
   document.body.appendChild(black);
   requestAnimationFrame(() => requestAnimationFrame(() => { black.style.opacity = '1'; }));
 
+  // 暗転完了後にグリッチ → メッセージ → ブチッ
   setTimeout(() => {
     runGlitch(700, () => {
-      showEndingMessages(() => runScreenCollapse(black));
+      showEndingMessages(() => runScreenCollapse());
     });
   }, 900);
 }
@@ -458,7 +482,14 @@ function showEndingMessages(onDone){
 
   let i = 0;
   function next(){
-    if(i >= msgs.length){ setTimeout(onDone, 1200); return; }
+    if(i >= msgs.length){
+      // 最後のメッセージが出てから1.2秒後にブチッと全黒
+      setTimeout(() => {
+        wrap.remove();
+        onDone();
+      }, 1200);
+      return;
+    }
     const el = document.createElement('div');
     el.textContent = msgs[i++];
     el.style.cssText =
@@ -471,22 +502,30 @@ function showEndingMessages(onDone){
   next();
 }
 
-function runScreenCollapse(blackEl){
-  runGlitch(600, () => {
+function runScreenCollapse(){
+  // グリッチ短め
+  runGlitch(400, () => {
+    // 白フラッシュ（ブチッ）
     const flash = document.createElement('div');
     flash.style.cssText =
       'position:fixed;inset:0;z-index:9900;background:#fff;opacity:0;pointer-events:none;transition:opacity .04s;';
     document.body.appendChild(flash);
+
     requestAnimationFrame(() => requestAnimationFrame(() => {
       flash.style.opacity = '1';
       setTimeout(() => {
+        // 即座に全黒・完全固定
         flash.remove();
+        const finalBlack = document.createElement('div');
+        finalBlack.style.cssText =
+          'position:fixed;inset:0;z-index:99999;background:#000;opacity:1;pointer-events:all;';
+        document.body.appendChild(finalBlack);
         document.title = 'このページは閉じられました';
-        if(blackEl) blackEl.style.opacity = '1';
+        // favicon を空に
         let link = document.querySelector("link[rel~='icon']");
         if(!link){ link = document.createElement('link'); link.rel = 'icon'; document.head.appendChild(link); }
         link.href = 'data:,';
-      }, 80);
+      }, 60);
     }));
   });
 }
