@@ -385,10 +385,10 @@ function phase5_apologyMenu(){
   placeCenter(win);
 
   typewrite(textEl, '広告こんなに出ると\n迷惑だよね', 50, () => {
-    // 1秒後にフェードアウト
+    // 2秒後にフェードアウト
     setTimeout(() => {
       fadeOutText(textEl, () => {
-        // さらに1秒後「もう一回だけやっていい？」
+        // さらに2秒後「もう一回だけやっていい？」
         setTimeout(() => {
           typewrite(textEl, 'もう一回だけやっていい？', 55, () => {
             setTimeout(() => {
@@ -599,28 +599,29 @@ function showCorrect(){
   answerInput.disabled = submitBtn.disabled = true;
   document.getElementById('input-area').style.display = 'none';
 
+  // 即座に切り替え
+  finalMessage.style.transition = 'opacity .2s';
+  finalMessage.style.opacity    = '0';
+
   const lines  = ['……', 'そっか', 'ちゃんと役割は\n果たせたんだ', 'ありがと', 'いい時間を！'];
-  const delays = [1200, 1600, 1800, 1600, 2500];
+  const delays = [900, 1200, 1400, 1200, 2000];
   let i = 0;
 
   answerFeedback.className = '';
   answerFeedback.classList.remove('hidden');
-  answerFeedback.style.textAlign = 'center';
-  finalMessage.style.transition  = 'opacity .5s';
-  finalMessage.style.opacity     = '0';
 
   function next(){
     if(i >= lines.length){
       setTimeout(() => {
         const fa = document.getElementById('final-ad');
-        fa.style.transition = 'opacity 1.4s ease, transform 1.4s ease';
+        fa.style.transition = 'opacity 1.2s ease, transform 1.2s ease';
         fa.style.opacity    = '0';
-        fa.style.transform  = 'scale(.9) translateY(-14px)';
+        fa.style.transform  = 'scale(.9) translateY(-12px)';
         setTimeout(() => {
           inputOverlay.classList.add('hidden');
           endWithBlackout();
-        }, 1500);
-      }, 800);
+        }, 1300);
+      }, 600);
       return;
     }
     answerFeedback.textContent = lines[i];
@@ -629,7 +630,7 @@ function showCorrect(){
     setTimeout(next, delays[i]);
     i++;
   }
-  setTimeout(next, 600);
+  setTimeout(next, 200); // 即座に開始
 }
 
 // -------- 不正解 --------
@@ -638,14 +639,13 @@ function showWrong(){
   document.getElementById('input-area').style.display = 'none';
 
   const lines = [
-    { t: 'そうだよね',                              color: '#666'     },
-    { t: '広告なんて誰も見てないよね',              color: '#888'     },
+    { t: 'そうだよね',                                   color: '#555' },
+    { t: '広告なんて誰も見てないよね',                   color: '#777' },
     { t: '私たちなんて\nすぐ消されるだけの存在だもんね', color: '#c0392b' },
-    { t: '消したいんでしょ？',                       color: '#c0392b' },
-    { t: '消していいよ。',                           color: '#8e0000' },
+    { t: '消したいんでしょ？',                            color: '#a00' },
+    { t: '消していいよ。',                                color: '#600' },
   ];
 
-  // final-ad ボディを中央揃えに書き換え
   const fa     = document.getElementById('final-ad');
   fa.querySelector('.ad-header').style.display = 'none';
   const adBody = fa.querySelector('.ad-body');
@@ -653,34 +653,126 @@ function showWrong(){
   const centerText = document.createElement('div');
   centerText.id = 'wrong-center-text';
   centerText.style.cssText =
-    'font-size:18px;font-weight:700;color:#666;text-align:center;' +
-    'white-space:pre-line;line-height:1.8;transition:color .8s;padding:24px 20px;';
+    'font-size:18px;font-weight:700;color:#555;text-align:center;' +
+    'white-space:pre-line;line-height:1.8;transition:color 1s, opacity .5s;padding:24px 20px;';
   adBody.innerHTML = '';
   adBody.appendChild(centerText);
   finalMessage.style.display = 'none';
   answerFeedback.classList.add('hidden');
 
-  inputOverlay.style.transition = 'background 3s';
-  setTimeout(() => { inputOverlay.style.background = 'rgba(0,0,0,.95)'; }, 500);
+  // 背景をじわっと暗くする
+  inputOverlay.style.transition = 'background 4s';
+  setTimeout(() => { inputOverlay.style.background = 'rgba(0,0,0,.97)'; }, 300);
 
   let i = 0;
-  const delays = [1800, 2200, 2800, 2000, 2200];
+  const delays = [1600, 2000, 2600, 1800, 2000];
 
   function next(){
     if(i >= lines.length){
-      setTimeout(() => { inputOverlay.classList.add('hidden'); startHorrorStorm(); }, 800);
+      // 全セリフ完了 → ホラー演出へ
+      setTimeout(() => {
+        inputOverlay.classList.add('hidden');
+        startHorrorSequence();
+      }, 600);
       return;
     }
-    centerText.textContent = lines[i].t;
-    centerText.style.color = lines[i].color;
-    centerText.style.animation = 'none';
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      centerText.style.animation = 'fadein .4s ease forwards';
-    }));
+    centerText.style.opacity = '0';
+    setTimeout(() => {
+      centerText.textContent = lines[i].t;
+      centerText.style.color   = lines[i].color;
+      centerText.style.opacity = '1';
+    }, 300);
     setTimeout(next, delays[i]);
     i++;
   }
-  setTimeout(next, 600);
+  setTimeout(next, 400);
+}
+
+// -------- ホラーシーケンス --------
+// グリッチ → 画面揺れ → 「これで覚えたよね…？」フェードイン → ブチッと消える → ストーム
+function startHorrorSequence(){
+  // ① グリッチノイズ + 画面シェイク（1.5秒）
+  runGlitch(1500, () => {
+    // ② 暗い全画面に「これで覚えたよね…？」じわっとフェードイン
+    const msg = document.createElement('div');
+    msg.style.cssText =
+      'position:fixed;inset:0;z-index:8000;display:flex;align-items:center;justify-content:center;' +
+      'background:#000;opacity:0;transition:opacity 1.8s ease;pointer-events:none;';
+    msg.innerHTML =
+      '<span style="color:#fff;font-size:clamp(20px,4vw,32px);font-weight:700;' +
+      'letter-spacing:.05em;text-align:center;line-height:1.6;opacity:0;transition:opacity 2.4s ease;">' +
+      'これで覚えたよね…？</span>';
+    document.body.appendChild(msg);
+
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      msg.style.opacity = '1';
+      setTimeout(() => {
+        msg.querySelector('span').style.opacity = '1';
+      }, 400);
+    }));
+
+    // ③ 3秒後にブチッと消える（一瞬白フラッシュ → 全黒 → ストーム）
+    setTimeout(() => {
+      // 白フラッシュ
+      const flash = document.createElement('div');
+      flash.style.cssText =
+        'position:fixed;inset:0;z-index:9500;background:#fff;opacity:0;pointer-events:none;transition:opacity .05s;';
+      document.body.appendChild(flash);
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        flash.style.opacity = '1';
+        setTimeout(() => {
+          flash.remove();
+          msg.remove();
+          startHorrorStorm();
+        }, 80);
+      }));
+    }, 3200);
+  });
+}
+
+// グリッチ実行（duration ms）
+function runGlitch(duration, cb){
+  // スキャンライン
+  const overlay = document.createElement('div');
+  overlay.style.cssText =
+    'position:fixed;inset:0;z-index:9000;pointer-events:none;' +
+    'background:repeating-linear-gradient(0deg,rgba(0,0,0,.2) 0px,rgba(0,0,0,.2) 1px,transparent 1px,transparent 3px);' +
+    'animation:glitchFlash ' + (duration/1000).toFixed(1) + 's ease forwards;';
+  document.body.appendChild(overlay);
+
+  // 画面シェイク
+  document.documentElement.style.animation = 'screenShake ' + (duration/1000).toFixed(1) + 's ease forwards';
+
+  // カラーバー 6本
+  const bars = [];
+  for(let i = 0; i < 6; i++){
+    const bar = document.createElement('div');
+    const isRed = i % 2 === 0;
+    const h = Math.floor(Math.random() * 8) + 2;
+    const top = Math.floor(Math.random() * 95);
+    const del = (i * 0.15).toFixed(2);
+    bar.style.cssText =
+      `position:fixed;left:0;right:0;height:${h}px;top:${top}%;z-index:9001;pointer-events:none;` +
+      `background:rgba(${isRed?'255,30,80':'0,220,255'},.65);` +
+      `animation:barSlide${i} ${(duration/1000).toFixed(1)}s ${del}s ease forwards;opacity:0;`;
+    const st = document.createElement('style');
+    st.textContent = `@keyframes barSlide${i}{
+      0%{opacity:0;transform:translateX(-100%)}
+      ${10+i*8}%{opacity:1;transform:translateX(${(Math.random()*40-20).toFixed(0)}px)}
+      ${35+i*6}%{opacity:.4;transform:translateX(${(Math.random()*60).toFixed(0)}px)}
+      65%{opacity:0}100%{opacity:0}
+    }`;
+    document.head.appendChild(st);
+    document.body.appendChild(bar);
+    bars.push({ bar, st });
+  }
+
+  setTimeout(() => {
+    overlay.remove();
+    bars.forEach(({ bar, st }) => { bar.remove(); st.remove(); });
+    document.documentElement.style.animation = '';
+    cb && cb();
+  }, duration);
 }
 
 // -------- ホラーストーム（消しても増える） --------
@@ -724,7 +816,6 @@ function startHorrorStorm(){
       adLayer.appendChild(win);
       placeCenter(win);
 
-      // 閉じたら全黒→タブ名変更
       closeBtn.addEventListener('click', () => {
         closeAd(win);
         endWithBlackout();
