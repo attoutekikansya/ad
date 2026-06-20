@@ -146,11 +146,32 @@
 
   </div><!-- /article-bg -->
 
-  <!-- ===== 404 SCREEN ===== -->
-  <div id="not-found-screen" class="hidden">
-    <div class="nf-code">404</div>
-    <div class="nf-msg">NOT FOUND</div>
-    <div class="nf-sub">この記事は削除されました</div>
+  <!-- ===== TERMS MODAL ===== -->
+  <div id="terms-overlay">
+    <div id="terms-modal">
+      <div class="terms-header">
+        <span class="terms-logo">◈ ECHO FOUNDATION</span>
+        <span class="terms-badge">利用規約</span>
+      </div>
+      <div class="terms-body">
+        <p class="terms-title">本サービスをご利用いただく前に</p>
+        <div class="terms-scroll">
+          <p>本サービス（以下「当サービス」）は、ECHO FOUNDATIONが提供する研究アーカイブ閲覧サービスです。ご利用にあたっては以下の規約に同意いただく必要があります。</p>
+          <p>第1条（目的）<br>当サービスは人類の知識・記憶・存在に関する研究資料の閲覧を目的とします。</p>
+          <p>第2条（利用条件）<br>本サービスの利用は18歳以上の方に限定されます。利用者は自己の責任において本サービスを利用するものとします。</p>
+          <p>第3条（データの取り扱い）<br>当サービスは利用者の閲覧履歴・操作ログを記録します。これらのデータは研究目的にのみ使用されます。</p>
+          <p>第4条（存在情報の取り扱い）<br>利用者は本サービスの利用開始をもって、当財団による存在情報の参照・記録・必要に応じた第三者への譲渡に同意したものとみなします。なお当該譲渡は利用者自身の操作行為をもって完結するものとします。</p>
+          <p>第5条（免責事項）<br>当財団は本サービスの利用により生じたいかなる損害についても責任を負いません。</p>
+          <p>第6条（規約の変更）<br>当財団は予告なく本規約を変更する場合があります。</p>
+        </div>
+        <label class="terms-check-row">
+          <input type="checkbox" id="terms-check">
+          <span class="terms-check-label">利用規約を確認し、開始します</span>
+        </label>
+        <p class="terms-fine-print">本操作により、必要に応じて自身の存在情報の譲渡を行います。</p>
+        <button id="terms-start-btn" disabled>開始する</button>
+      </div>
+    </div>
   </div>
 
   <!-- ===== BG DIMMER ===== -->
@@ -158,22 +179,6 @@
 
   <!-- ===== AD LAYER ===== -->
   <div id="ad-layer"></div>
-
-  <!-- ===== FINAL INPUT ===== -->
-  <div id="input-overlay" class="hidden">
-    <div id="final-ad">
-      <div class="ad-header">
-        <span class="ad-label">広告</span>
-        <span class="ad-title-bar">お願いがあるんだけど</span>
-      </div>
-      <div class="ad-body" id="final-message"></div>
-      <div id="input-area">
-        <input type="text" id="answer-input" placeholder="商品名を入力" autocomplete="off">
-        <button id="submit-btn">送信</button>
-      </div>
-      <div id="answer-feedback" class="hidden"></div>
-    </div>
-  </div>
 
   <script src="script.js"></script>
 </body>
